@@ -15,23 +15,6 @@ bits 64
  syscall
 %endmacro
 
-%macro condition 2
- cmp sil, '!'
- j%2 %1  
- cmp sil, '.'
- j%2 %1
- cmp sil, ','
- j%2 %1
- cmp sil, '?'
- j%2 %1
- cmp sil, 0xA  ; \n
- j%2 %1
- cmp sil, 0x20 ; Space
- j%2 %1
- cmp sil, 0xd ; '\r'
- j%2 %1  
-%endmacro
-
 section .data
 error_string: db 'TRY CALLING: ./main file_name', ENDL
 content_string: db 'FILE CONTENT: ', 0x0
@@ -51,9 +34,9 @@ print_string:
  xor rdx, rdx
  .str_len:
  cmp byte[rsi+rdx], 0
- je short .end_len
+ je .end_len
  inc rdx
- jmp short .str_len
+ jmp .str_len
  .end_len:
  mov rax, 1
  syscall
@@ -75,17 +58,12 @@ get_word_and_characters:
  xor rdx, rdx
  xor rax, rax
  .automata:
- mov rsi, [rdi]
+ mov sil, [rdi]
  cmp sil, 0
  je .end
- condition .character_counter e
+ 
  
  .word_counter:
- inc rax
- inc rdx
- inc rdi
- mov sil, byte[rsi]
- cmp sil, 0
  
  .character_counter:
  
